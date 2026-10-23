@@ -184,6 +184,16 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           name: The Fawn's Story ${{ github.ref_name }}
+          body: |
+            **The Fawn's Story — Сезон 1 «Кровавое турне»**
+
+            Интерактивное приложение аудиосериала: эпизоды с субтитрами, бонусные видео, персонажи, карта Риверсайда, альбом достижений и саундтрек FAWNCORE.
+
+            **Скачать:**
+            - Windows: `TheFawnsStory-Setup-${{ github.ref_name }}.exe` (установщик)
+            - Android: `TheFawnsStory-${{ github.ref_name }}.apk` (при установке разрешите установку из неизвестных источников)
+
+            Веб-версия: https://fawngard.github.io/THE-FAWNS-STORY/
           files: |
             dl/windows/*.exe
             dl/android/*.apk
