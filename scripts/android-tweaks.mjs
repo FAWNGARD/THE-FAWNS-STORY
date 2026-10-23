@@ -12,7 +12,7 @@ writeFileSync(mf, m);
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const gf = "android/app/build.gradle";
 let g = readFileSync(gf, "utf8");
-g = g.replace(/versionCode \d+/, 'versionCode (project.findProperty("versionCode") ?: "1").toInteger()');
+g = g.replace(/versionCode \d+/, 'versionCode Integer.parseInt((project.findProperty("versionCode") ?: "1").toString())');
 g = g.replace(/versionName "[^"]*"/, `versionName "${pkg.version}"`);
 // big media must stay uncompressed inside the APK so the WebView can stream and seek it
 if (!g.includes("noCompress"))

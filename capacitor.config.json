@@ -1,6 +1,6 @@
 {
   "appId": "com.fawngard.thefawnsstory",
-  "appName": "The Fawn's Story",
+  "appName": "The Fawn’s Story",
   "webDir": "dist/android",
   "backgroundColor": "#000000",
   "android": {

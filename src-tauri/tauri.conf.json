@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "The Fawn's Story",
+  "productName": "The Fawn’s Story",
   "mainBinaryName": "TheFawnsStory",
   "version": "1.0.0",
   "identifier": "com.fawngard.thefawnsstory",
@@ -12,7 +12,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "The Fawn's Story",
+        "title": "The Fawn’s Story",
         "width": 1440,
         "height": 900,
         "minWidth": 960,
@@ -36,7 +36,7 @@
     "targets": ["nsis"],
     "publisher": "Kive's Sane",
     "copyright": "© Kive's Sane",
-    "shortDescription": "The Fawn's Story — Season 1: Bloody Tour",
+    "shortDescription": "The Fawn’s Story — Season 1: Bloody Tour",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
