@@ -266,16 +266,20 @@ body[data-screen="chars"] #chars{opacity:1;pointer-events:auto}
 body[data-screen="map"] #mapScr{opacity:1;pointer-events:auto}
 #mapBox{position:absolute}
 #mapBox[data-v="real"]{left:160px;top:0;width:1600px;height:1200px}
-#mapBox[data-v="scheme"]{left:0;top:24px;width:1920px;height:1152px}
+#mapBox[data-v="scheme"]{left:160px;top:0;width:1600px;height:1200px}
 #mapImg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #mapBox::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 120px rgba(0,0,0,.55)}
 .pin{position:absolute;width:var(--d);height:var(--d);margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);border-radius:50%;border:0;padding:0;background:none;cursor:pointer;z-index:2}
-#mapBox[data-v="real"] .pin{--d:50px}
-#mapBox[data-v="scheme"] .pin{--d:60px}
+#mapBox[data-v="real"] .pin{--d:54px}
+#mapBox[data-v="scheme"] .pin{--d:54px}
 .pin::before{content:"";position:absolute;inset:6px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 18px 4px rgba(255,60,60,.7);animation:pinPulse 2.4s ease-in-out infinite;transition:box-shadow .2s}
 .pin:hover::before,.pin:focus-visible::before,.pin.on::before{box-shadow:0 0 0 4px #fff,0 0 30px 10px rgba(255,80,80,.95);animation:none}
 .pin:focus-visible{outline:none}
 @keyframes pinPulse{0%,100%{opacity:.25}50%{opacity:1}}
+/* the clean maps carry no printed markers: each pin is drawn as a white disc with a red ring and its code */
+.pin .pm{position:absolute;inset:4px;border-radius:50%;background:#fbf6ee;box-shadow:inset 0 0 0 4px #d0262b,0 3px 8px rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;
+  font:700 calc(var(--d) * .36)/1 "Golos",sans-serif;color:#c01f24;letter-spacing:-.04em;pointer-events:none}
+.pin.locked .pm,.pin.road .pm,.pin.crash .pm,.pin.label .pm{display:none}
 .pin.label{width:190px;height:58px;margin:-29px 0 0 -95px;border-radius:10px}
 .pin.label::before{inset:0;border-radius:10px}
 .pin.locked::before{animation:none;opacity:1;inset:3px;background:#0b0a09;box-shadow:0 0 0 3px #3a3734}
@@ -588,7 +592,7 @@ body.portrait #lb .lbn{top:auto;bottom:140px;margin-top:0;font-size:130px}
 body.portrait #mapScr{background:#0e0d0c;overflow:hidden}
 body.portrait #mapBox,body.portrait #mapBox[data-v]{left:0;top:var(--mt,0px);width:1080px;height:var(--mh,1440px)}
 body.portrait #mapBox::after{display:none}
-body.portrait #mapBox[data-v] .pin{--d:70px}
+body.portrait #mapBox[data-v] .pin{--d:76px}
 body.portrait .pin.road{width:80px;height:88px;margin:-44px 0 0 -40px}
 body.portrait .pin.label{width:210px;height:66px;margin:-33px 0 0 -105px}
 body.portrait #mapLegend,body.portrait #mapBox[data-v] #mapLegend{left:0!important;width:1080px!important;top:calc(100% + 0px)!important;height:auto!important;padding:28px 40px 120px;box-shadow:0 -2px 0 #2b2926}
@@ -1153,20 +1157,19 @@ function mapV(){return save.map==="scheme"?"scheme":"real"}
 function openMap(){hidePop(true);buildMap();go("map")}
 // phones: maps turned 90° clockwise (ocean on top): (x,y) → (1-y, x)
 const MP=p=>PHONE?[1-p[1],p[0]]:p;
-const MAP_KEY={real:[.29,.33],scheme:[.42,.27]};// the printed map key, hidden on phones
 function sizeMap(){const v=mapV(),box=$("mapBox"),ph=parseFloat(getComputedStyle(body).getPropertyValue("--ph"))||2200;
-  const mh=1080*(v==="real"?1440/1080:2400/1440),lh=$("mapLegend").offsetHeight||700,av=ph-lh;
+  const mh=1440;
   box.style.setProperty("--mh",mh+"px");box.style.setProperty("--mt","0px");
-  const k=box.querySelector(".mapKey"),K=MAP_KEY[v];if(k){k.style.width=K[0]*100+"%";k.style.height=K[1]*100+"%"}}
+}
 function buildMap(){
   const v=mapV(),box=$("mapBox");box.dataset.v=v;$("mapImg").src=(v==="real"?"img/map_real":"img/map_scheme")+(PHONE?"_v":"")+".webp";
-  if(PHONE&&!box.querySelector(".mapKey")){const k=document.createElement("div");k.className="mapKey";box.insertBefore(k,$("mapPins"))}
+
   $("mapSwitch").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));
   const L=LEGEND[v];if(L){const g=$("mapLegend").style;g.left=L[0]*100+"%";g.top=L[1]*100+"%";g.width=(L[2]-L[0])*100+"%";g.height=(L[3]-L[1])*100+"%"}
   const P=$("mapPins"),list=$("mapList");P.textContent=list.textContent="";
   PLACES.forEach(pl=>{const lock=pl.after!=null&&!opened(pl.after);
     const b=document.createElement("button");b.type="button";b.className="pin"+(pl.label?" label":"")+(pl.road?" road":"")+(pl.crash?" crash":"")+(lock?" locked":"");
-    if(pl.road)b.innerHTML=ROUTE_SVG;const q=MP(pl[v]);b.style.left=q[0]*100+"%";b.style.top=q[1]*100+"%";b.setAttribute("aria-label",lock?"Закрытая метка":pl.name);
+    if(pl.road)b.innerHTML=ROUTE_SVG;else if(!pl.crash&&!pl.label){const t=document.createElement("span");t.className="pm";t.textContent=pl.mark;b.append(t)}const q=MP(pl[v]);b.style.left=q[0]*100+"%";b.style.top=q[1]*100+"%";b.setAttribute("aria-label",lock?"Закрытая метка":pl.name);
     b.addEventListener("pointerenter",ev=>{if(ev.pointerType==="mouse"&&!pinned)showPop(pl,b)});
     b.addEventListener("pointerleave",ev=>{if(ev.pointerType==="mouse"&&!pinned)hidePop()});
     b.addEventListener("click",ev=>{ev.stopPropagation();if(pinned===pl){hidePop(true);return}pinned=pl;showPop(pl,b)});
@@ -1195,7 +1198,8 @@ function showPop(pl,pin){clearTimeout(popHideT);
   pop.classList.add("on");const w=pop.offsetWidth,h=pop.offsetHeight;
   let left,top;
   const vert=!PHONE&&pl.path&&(y-50-h>=10||y+50+h<=bh-10);
-  if(PHONE){left=bw-w;top=bh-h}
+  if(PHONE){// beside the pin: below it if there is room, otherwise above; clamped to the map
+    left=Math.min(Math.max(10,x-w/2),bw-w-10);top=(y+50+h<=bh-10||bh-y>y)?y+50:Math.max(10,y-50-h)}
   else if(vert){// keep the highlighted road visible: open above (or below) the pin
     left=Math.min(Math.max(10,x-w/2),bw-w-10);top=y-50-h>=10?y-50-h:y+50}
   else{const src=typeof pl.path==="string"?PLACES.find(p=>p.id===pl.path):pl,path=src&&src.path&&src.path[mapV()];
