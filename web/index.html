@@ -209,7 +209,6 @@ body[data-screen="credits"] #rai,body[data-screen="credits"] #home{opacity:0;poi
 
 #rotate{position:fixed;inset:auto 0 0 0;padding:14px max(16px,env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px));text-align:center;
   font:22px var(--brush);color:var(--paper);background:rgba(11,10,9,.8);display:none;z-index:50}
-@media (orientation:portrait) and (max-width:700px){#rotate{display:block}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}}
 
 /* ---------- characters: concrete wall + notebook page ---------- */
@@ -488,37 +487,177 @@ body[data-screen="fcplay"].idle #fcBack{opacity:0}
 #evBody p:first-child{margin-bottom:12px}
 #evClose{position:absolute;right:40px;top:30px;font:60px/1 var(--brush);color:var(--paper);background:none;border:0;cursor:pointer;--sw:7px;z-index:2}
 
-/* ---------- portrait players (phones held upright): stage is 1080 wide and as tall as the screen;
-   the cover / title hang from the top, subtitles and controls sit on the bottom ---------- */
-body.portrait #stage{width:1080px;height:var(--ph,1920px);background-size:cover;background-position:center}
-body.portrait #rotate{display:none!important}
+/* ======================= PHONE (portrait) =======================
+   Phones get a 1080-wide stage as tall as the screen (≥2200). Drafts: 1080×2200.
+   Video phases and credits switch back to the 1920×1200 landscape stage. */
+body.portrait #stage{width:1080px;height:var(--ph,2200px);background-size:cover;background-position:center}
 body.portrait{padding-left:0;padding-right:0}
-body.portrait #fcScr{background-size:cover;background-position:center}
-body.portrait #ptitle{left:150px;right:150px;top:26px;font-size:42px}
+#rotate{display:none!important}
+body.wrongOri #rotate{display:block!important}
 body.portrait #rai{bottom:24px}
-body.portrait[data-screen="play"] #coverBox{left:90px;top:180px;width:900px;height:901px}
-body.portrait #tape{left:368px;top:auto;bottom:360px;width:345px;height:614px}
-body.portrait #epi{left:153px;top:auto;bottom:520px;width:774px;height:340px}
-body.portrait #subs{left:40px;width:1000px;top:auto;bottom:300px;height:calc(var(--ph,1920px) - 1081px - 180px - 340px);min-height:420px;font-size:54px;line-height:1.22}
-body.portrait #timeline{left:80px;top:auto;bottom:170px;width:920px}
-body.portrait #time{top:auto;bottom:90px;font-size:44px}
+body.portrait #tg{width:620px;height:640px}
+
+/* splash + seasons: the deer scene, enlarged and centred; seasons in a 2×2 grid */
+body.portrait #scene{transform:translate(-538px,123px) scale(1.123)}
+body.portrait[data-screen="splash"] #scene{transform:translate(-777px,300px) scale(1.37)}
+body.portrait #splash .hint{top:1560px;font-size:52px}
+body.portrait #splash .sub{top:1640px;font-size:34px}
+body.portrait #seasonRow .season .lbl{top:330px;font-size:50px;line-height:54px}
+body.portrait #seasonRow .season:nth-child(1){left:613px!important;top:772px}
+body.portrait #seasonRow .season:nth-child(2){left:1013px!important;top:772px}
+body.portrait #seasonRow .season:nth-child(3){left:613px!important;top:1280px}
+body.portrait #seasonRow .season:nth-child(4){left:1013px!important;top:1280px}
+
+/* season menu: logo on top, sections in a column */
+body.portrait #intro .tfs{left:130px;top:130px;width:820px}
+body.portrait #intro .bt{left:122px;top:540px;width:836px}
+body.portrait #secBtns{top:900px;flex-direction:column;align-items:center;gap:56px}
+body.portrait .secBtn{font-size:96px;--sw:12px}
+body.portrait .secBtn::after{right:-80px;width:72px;height:74px;margin-top:-40px}
+body.portrait #secNote{top:calc(var(--ph) - 170px);font-size:44px}
+
+/* cassettes: cover panel on top, the stack below (first tap = look, second = play) */
+body.portrait #panel{left:110px;top:90px;width:860px;height:861px}
+body.portrait #stack,body.portrait #rows{left:182px;top:965px;transform-origin:0 0;transform:scale(1.06)}
+body.portrait:not([data-screen="menu"]) #stack{transform:translateX(-1300px) scale(1.06)}
+body.portrait #mark{left:905px;width:85px;height:87px}
+body.portrait #note{left:60px;width:960px;top:auto;bottom:110px;font-size:42px;padding:18px 20px;box-sizing:border-box;background:rgba(14,13,12,.9);border-radius:10px}
+body.portrait #reset{left:0;right:0;width:100%;top:auto;bottom:34px;font-size:32px;text-align:center}
+body.portrait #menuBack,body.portrait #back,body.portrait #charsBack,body.portrait #artBack,body.portrait #mapBack,body.portrait #fcBack{font-size:44px;padding:20px 30px 20px 22px}
+body.portrait #home{width:100px;height:100px;right:16px;top:12px}
+
+/* characters wall */
+body.portrait #chars{background-size:cover;background-position:center}
+body.portrait .wlabel{font-size:52px}
+body.portrait #wl1{left:100px!important;top:110px!important}
+body.portrait #wl2{left:70px!important;top:1650px!important}
+body.portrait #wl3{left:70px!important;top:1170px!important}
+body.portrait .pst{width:290px;height:386px}
+body.portrait .pst .wn{top:404px;font-size:52px;left:-30px;right:-30px}
+body.portrait #mainRow .pst:nth-child(1){left:40px!important;top:185px}
+body.portrait #mainRow .pst:nth-child(2){left:395px!important;top:185px}
+body.portrait #mainRow .pst:nth-child(3){left:750px!important;top:185px}
+body.portrait #mainRow .pst:nth-child(4){left:215px!important;top:665px}
+body.portrait #mainRow .pst:nth-child(5){left:570px!important;top:665px}
+body.portrait #mentionList{left:90px!important;top:1250px;width:960px}
+body.portrait #minorList{left:90px!important;top:1730px;width:960px}
+body.portrait .wname{font-size:60px;margin-bottom:28px}
+body.portrait #wallNote{bottom:auto;top:calc(var(--ph) - 150px)}
+
+/* character page: posters on top, notebook page below */
+body.portrait .cpp.one{left:265px;top:70px;width:550px;height:733px}
+body.portrait .cpp.two.a{left:120px;top:40px;width:460px;height:613px}
+body.portrait .cpp.two.b{left:560px;top:230px;width:440px;height:587px}
+body.portrait .cpp figcaption{bottom:-66px;font-size:56px}
+body.portrait .cpp.blank{left:90px;top:250px;width:900px;height:300px;font-size:120px}
+body.portrait #paper{left:40px;top:930px;width:1000px;height:calc(var(--ph) - 960px);transform:rotate(.4deg)}
+body.portrait #chars:has(.cpp.one) #paper{top:880px;height:calc(var(--ph) - 910px)}
+body.portrait #chars:has(.cpp.blank) #paper{top:640px;height:calc(var(--ph) - 670px)}
+body.portrait #paperIn{font-size:42px;line-height:52px;padding:26px 50px 52px 150px;background-position:0 0,0 26px}
+body.portrait #paperIn{background:linear-gradient(90deg,transparent 116px,#d58a84 116px,#d58a84 119px,transparent 119px),repeating-linear-gradient(transparent 0 51px,#a9bbd3 51px 52px) 0 26px;background-attachment:local}
+body.portrait #cpText p{margin:0 0 52px}
+body.portrait #cpText p:first-child{margin-top:52px}
+
+/* illustrations: one achievement per page, photo + its back shown together */
+body.portrait #artScr{background:#0b0908}
+body.portrait #album{left:0;top:0;width:1080px;height:var(--ph);border-radius:0;padding:0;background:#0b0908;box-shadow:none}
+body.portrait .apage.pr{display:none}
+body.portrait .apage.pl{box-shadow:inset 0 0 120px rgba(0,0,0,.9)}
+body.portrait .aph,body.portrait .aph.wide{left:70px;top:270px;width:940px;height:529px;z-index:1}
+body.portrait .aph .cap,body.portrait .aph.wide .cap{top:560px;font-size:50px}
+body.portrait .aph.split .flipper{transform:none!important;transform-style:flat}
+body.portrait .aph.split .front{cursor:zoom-in}
+body.portrait .aph.split .back{transform:rotate(-1deg);top:740px;bottom:auto;left:-20px;right:-20px;height:auto;min-height:540px;padding:30px 36px;-webkit-backface-visibility:visible;backface-visibility:visible;cursor:default;box-shadow:0 14px 34px rgba(0,0,0,.7)}
+body.portrait .aph.split .back strong{font-size:70px;margin:14px 0 6px}
+body.portrait .aph.split .back .bTop{font-size:32px}
+body.portrait .aph.split .back .bTop em{font-size:38px}
+body.portrait .aph.split .back .bCond{font-size:32px}
+body.portrait .aph.split .back .bDesc{font-size:38px;line-height:1.2;margin-top:12px}
+body.portrait .aph.split .back .bFoot{font-size:30px;margin-top:24px}
+body.portrait .aph.split .bCode input{width:86px;height:100px;font-size:72px}
+body.portrait #albumNav{bottom:auto;top:calc(var(--ph) - 330px)}
+body.portrait #albumNav button{font-size:96px;padding:0 40px}
+body.portrait #albNum{font-size:72px}
+body.portrait #lbImg{max-width:1040px;max-height:calc(var(--ph) - 400px)}
+body.portrait #lbCap{font-size:52px;text-align:center;padding:0 40px}
+body.portrait #lbClose{right:40px;top:130px;font-size:80px}
+body.portrait #lb .lbn{top:auto;bottom:140px;margin-top:0;font-size:130px}
+
+/* map: rotated maps (ocean on top), legend at the bottom */
+body.portrait #mapScr{background:#0e0d0c;overflow:hidden}
+body.portrait #mapBox,body.portrait #mapBox[data-v]{left:0;top:var(--mt,0px);width:1080px;height:var(--mh,1440px)}
+body.portrait #mapBox::after{display:none}
+body.portrait #mapBox[data-v] .pin{--d:70px}
+body.portrait .pin.road{width:80px;height:88px;margin:-44px 0 0 -40px}
+body.portrait .pin.label{width:210px;height:66px;margin:-33px 0 0 -105px}
+body.portrait #mapLegend,body.portrait #mapBox[data-v] #mapLegend{left:0!important;width:1080px!important;top:calc(100% + 0px)!important;height:auto!important;padding:28px 40px 120px;box-shadow:0 -2px 0 #2b2926}
+body.portrait #mapLegend h3{font-size:60px}
+body.portrait #mapSwitch button{font-size:40px;padding:12px 20px}
+body.portrait #mapList{columns:2;margin-top:22px}
+body.portrait #mapList button,body.portrait #mapBox[data-v] #mapList button{font-size:40px;line-height:1.3}
+body.portrait #mapList button b{min-width:62px}
+body.portrait .mapKey{position:absolute;left:0;top:0;background:#0e0d0c;z-index:1;display:block}
+.mapKey{display:none}
+body.portrait #pop{width:680px;transform:none}
+body.portrait #popImg{width:680px;height:383px}
+body.portrait #pop h3{font-size:56px}
+body.portrait #popTxt{font-size:38px}
+body.portrait #pop.compact,body.portrait #pop.compact #popImg{width:680px}
+body.portrait #pop.compact #popImg{height:300px}
+
+/* soundtrack list */
+body.portrait #fcScr{background-size:cover;background-position:center}
+body.portrait[data-screen="fc"] #fcCD{left:70px;top:110px;width:940px;height:940px}
+body.portrait #fcHead{left:0;width:1080px;top:1070px}
+body.portrait #fcHead b{font-size:84px}
+body.portrait #fcHead span{font-size:42px}
+body.portrait #fcList{left:40px;width:1000px;top:1250px}
+body.portrait .fcRow{font-size:46px;padding:20px 24px;margin-bottom:8px}
+body.portrait .fcRow small{font-size:26px}
+body.portrait #fcNote{left:40px;width:1000px;top:auto;bottom:40px;font-size:36px}
+
+/* soundtrack player */
+body.portrait #fcTitle{left:150px;width:780px;top:40px}
+body.portrait #fcTitle b{font-size:66px}
+body.portrait #fcTitle span{font-size:34px}
+body.portrait[data-screen="fcplay"] #fcCD{left:45px;top:200px;width:990px;height:990px}
+body.portrait #fcLyr{left:40px;width:1000px;top:1230px;height:calc(var(--ph) - 1230px - 640px);min-height:330px;-webkit-mask:linear-gradient(transparent 0,#000 60px,#000 calc(100% - 70px),transparent);mask:linear-gradient(transparent 0,#000 60px,#000 calc(100% - 70px),transparent)}
+body.portrait .fl{font-size:64px;margin-bottom:26px}
+body.portrait #fcBar{left:50px;right:50px;top:auto;bottom:90px;display:grid;grid-template-columns:1fr 150px 190px 150px 1fr;grid-template-areas:". prev pp next ." "seek seek seek seek time" "mode mode mode mode mode";row-gap:30px;column-gap:0;align-items:center;justify-items:center}
+body.portrait #fcPrev{grid-area:prev}body.portrait #fcPP{grid-area:pp}body.portrait #fcNext{grid-area:next}
+body.portrait #fcSeek{grid-area:seek;width:100%;height:12px}
+body.portrait #fcTime{grid-area:time;min-width:0;font-size:38px;padding-left:24px;justify-self:end}
+body.portrait #fcMode{grid-area:mode;font-size:36px!important;padding:18px 30px!important;width:380px}
+body.portrait #fcBar svg{width:86px;height:86px}
+body.portrait #fcPP svg{width:120px;height:120px}
+body.portrait.idle #fcTitle,body.portrait.idle #fcBar,body.portrait.idle #fcBack,body.portrait.idle #home{opacity:1;pointer-events:auto}
+
+/* episode player */
+body.portrait #ptitle{left:150px;right:150px;top:30px;font-size:44px}
+body.portrait[data-screen="play"] #coverBox{left:80px;top:300px;width:920px;height:921px}
+body.portrait #tape{left:310px;top:1068px;width:460px;height:819px;transform:translateY(900px) rotate(-90deg)}
+body.portrait[data-screen="play"][data-phase="tape"] #tape{transform:rotate(-91deg)}
+body.portrait #epi{left:68px;top:1262px;width:944px;height:414px}
+body.portrait #subs{left:40px;width:1000px;top:1255px;height:440px;font-size:52px;line-height:1.22}
+body.portrait #timeline{left:24px;top:1735px;width:1032px;height:60px}
 body.portrait #car{width:250px;height:85px;margin-left:-125px}
-body.portrait #vid{top:160px;width:1080px;height:610px}
-body.portrait[data-phase="video"] #subs,body.portrait[data-phase="video"].idle #subs{top:820px;bottom:auto;height:auto;max-height:calc(var(--ph,1920px) - 820px - 300px);justify-content:flex-start}
-body.portrait[data-phase="video"].idle #timeline,body.portrait[data-phase="video"].idle #time{opacity:1;pointer-events:auto}
-body.portrait #fcCD{left:140px;top:160px;width:800px;height:800px}
-body.portrait #fcTitle{left:150px;width:780px;top:26px}
-body.portrait #fcTitle b{font-size:46px}
-body.portrait #fcTitle span{font-size:24px}
-body.portrait #fcLyr{left:30px;width:1020px;top:990px;height:calc(var(--ph,1920px) - 990px - 330px);-webkit-mask:linear-gradient(transparent 0,#000 90px,#000 calc(100% - 140px),transparent);mask:linear-gradient(transparent 0,#000 90px,#000 calc(100% - 140px),transparent)}
-body.portrait .fl{font-size:66px;margin-bottom:30px}
-body.portrait #fcBar{left:60px;right:60px;bottom:60px;flex-wrap:wrap;justify-content:center;row-gap:34px;column-gap:44px}
-body.portrait #fcBar svg{width:76px;height:76px}
-body.portrait #fcPP svg{width:104px;height:104px}
-body.portrait #fcSeek{order:-1;flex:1 1 100%;height:12px}
-body.portrait #fcMode{font-size:32px!important;padding:14px 26px!important}
-body.portrait #fcTime{min-width:0;font-size:36px}
-body.portrait.idle #fcTitle,body.portrait.idle #fcBar{opacity:1;pointer-events:auto}
+body.portrait #time{top:1815px;font-size:52px}
+body.portrait .cb{width:120px;height:120px}
+body.portrait .cb.big{width:170px;height:170px}
+body.portrait .cb .ten{font-size:30px;margin-top:110px}
+
+/* overlays */
+body.portrait #achCard{flex-direction:column;align-items:stretch;width:980px;padding:44px 44px 50px;gap:30px}
+body.portrait #achPh{flex:0 0 auto;width:880px;height:495px;align-self:center}
+body.portrait #achName{font-size:96px}
+body.portrait #achSong,body.portrait #achCond{font-size:40px}
+body.portrait #achList{font-size:40px}
+body.portrait #achList button b{font-size:36px}
+body.portrait #achBtns button{font-size:50px;padding:20px 34px}
+body.portrait #evPaper{width:1000px;padding:80px 60px 60px;font-size:44px}
+body.portrait #evScroll{max-height:calc(var(--ph) - 420px)}
+body.portrait #evTag{right:30px;top:-60px;font-size:34px;max-width:420px}
+body.portrait #evClose{right:30px;top:24px;font-size:80px}
 </style>
 
 <div id="viewport">
@@ -546,11 +685,11 @@ body.portrait.idle #fcTitle,body.portrait.idle #fcBar{opacity:1;pointer-events:a
   <!-- characters -->
   <section id="chars" aria-label="Персонажи">
     <div id="wall">
-      <div class="wlabel" style="left:200px;top:58px">главные</div>
+      <div class="wlabel" id="wl1" style="left:200px;top:58px">главные</div>
       <div id="mainRow"></div>
-      <div class="wlabel" style="left:150px;top:640px">второстепенные</div>
+      <div class="wlabel" id="wl2" style="left:150px;top:640px">второстепенные</div>
       <div id="minorList" class="wlist" style="left:150px"></div>
-      <div class="wlabel" style="left:1030px;top:640px">упоминания</div>
+      <div class="wlabel" id="wl3" style="left:1030px;top:640px">упоминания</div>
       <div id="mentionList" class="wlist" style="left:1030px"></div>
       <div id="wallNote" class="stroke" aria-live="polite"></div>
     </div>
@@ -735,8 +874,12 @@ addEventListener("keydown",async ev=>{const T=window.__TAURI__;if(ev.key!=="F11"
 document.addEventListener("click",ev=>{const a=ev.target.closest&&ev.target.closest("a[href^='http']");const T=window.__TAURI__;
   if(a&&T&&T.opener){ev.preventDefault();T.opener.openUrl(a.href).catch(()=>{})}},true);
 // Android app: menus stay landscape; the players may rotate to portrait
-function orient(screen){const C=window.Capacitor,O=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.FawnOrient;if(!O)return;
-  O.set({mode:/^(play|fcplay)$/.test(screen)?"free":"landscape"}).catch(()=>{})}
+// phones (small touch screens) use the portrait layout everywhere except bonus videos and credits
+const PHONE=(()=>{try{return Math.min(screen.width,screen.height)<600&&matchMedia("(pointer:coarse)").matches}catch(e){return false}})();
+function wantPortrait(){const b=document.body;return PHONE&&b.dataset.screen!=="credits"&&!(b.dataset.screen==="play"&&b.dataset.phase==="video")}
+let lastOri="";
+function orient(){const C=window.Capacitor,O=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.FawnOrient;if(!O)return;
+  const m=PHONE&&wantPortrait()?"portrait":"landscape";if(m===lastOri)return;lastOri=m;O.set({mode:m}).catch(()=>{lastOri=""})}
 const audio=$("audio"),vid=$("vid"),body=document.body;let media=audio;
 const LOCK_SVG='<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M26 54 V36 a24 24 0 0 1 48 0 V54" fill="none" stroke="rgba(239,233,221,.78)" stroke-width="13"/><rect x="8" y="50" width="84" height="66" rx="14" fill="rgba(239,233,221,.78)"/><circle cx="50" cy="76" r="9" fill="#0b0a09"/><path d="M45 80 h10 l4 22 h-18z" fill="#0b0a09"/></svg>';
 
@@ -749,11 +892,16 @@ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(save))}catch(e){}
 
 /* ---------- stage scaling ---------- */
 function fit(){const v=$("viewport"),b=document.body;
-  const por=innerHeight>innerWidth*1.15&&/^(play|fcplay)$/.test(b.dataset.screen||"");b.classList.toggle("portrait",por);
+  const por=wantPortrait(),was=b.classList.contains("portrait");b.classList.toggle("portrait",por);
   const W=v.clientWidth,H=v.clientHeight;
-  const ph=por?Math.max(1920,Math.round(1080*H/W)):1200;b.style.setProperty("--ph",ph+"px");
+  const ph=por?Math.max(2200,Math.round(1080*H/W)):1200;b.style.setProperty("--ph",ph+"px");
+  // website on a phone held the wrong way round: ask to turn it
+  const r=$("rotate");if(r){r.textContent=por?"Поверните телефон вертикально":"Поверните телефон горизонтально";b.classList.toggle("wrongOri",PHONE&&(por?W>H:H>W))}
+  if(por!==was&&typeof onLayoutChange==="function")setTimeout(onLayoutChange,0);
   const s=Math.min(W/(por?1080:1920),H/ph);$("stage").style.transform=`translate(-50%,-50%) scale(${s})`}
-addEventListener("resize",()=>{fit();if(body.dataset.screen==="fcplay")requestAnimationFrame(()=>fcRender(true))});fit();
+addEventListener("resize",()=>{fit();if(body.dataset.screen==="fcplay")requestAnimationFrame(()=>fcRender(true));if(body.dataset.screen==="map"&&PHONE)sizeMap()});fit();
+// every screen / phase change re-fits the stage and sets the phone orientation (Android app)
+new MutationObserver(()=>{fit();orient()}).observe(document.body,{attributes:true,attributeFilter:["data-screen","data-phase"]});
 const pre=src=>{const i=new Image();i.src=src};
 EPISODES.forEach(e=>{pre(`img/cover_${e.cover}.webp`);pre(`img/lock_${e.cover}.webp`)});
 
@@ -889,7 +1037,7 @@ fetch("data/art.json").then(r=>r.json()).then(d=>{ART=d.photos||[];renderAlbum()
 const ART_R=[-1.6,1.2,1.4,-1.1];
 function openArt(){albPage=0;renderAlbum();go("art")}
 // spreads: up to 4 photos each; a "wide" photo takes a whole spread of its own
-function albSpreads(){const S=[];let cur=[];ART.forEach((ph,i)=>{if(ph.wide){if(cur.length)S.push(cur);S.push([i]);cur=[]}else{cur.push(i);if(cur.length===4){S.push(cur);cur=[]}}});if(cur.length)S.push(cur);return S.length?S:[[]]}
+function albSpreads(){if(PHONE)return ART.length?ART.map((_,i)=>[i]):[[]];const S=[];let cur=[];ART.forEach((ph,i)=>{if(ph.wide){if(cur.length)S.push(cur);S.push([i]);cur=[]}else{cur.push(i);if(cur.length===4){S.push(cur);cur=[]}}});if(cur.length)S.push(cur);return S.length?S:[[]]}
 const phOpen=ph=>!!ph&&(ph.key==="credits"?!!save.ach.credits:opened(ph.after==null?-1:ph.after));
 const fmtDate=t=>{const d=new Date(t);return isNaN(d)?"":`${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`};
 function albPhoto(i,cls,r){const ph=ART[i],b=document.createElement("button");b.type="button";b.className=cls;b.style.setProperty("--r",r+"deg");
@@ -907,13 +1055,14 @@ function albPhoto(i,cls,r){const ph=ART[i],b=document.createElement("button");b.
       v.addEventListener("click",ev=>{ev.stopPropagation();openLb(i)});v.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.stopPropagation();ev.preventDefault();openLb(i)}});
       ft.append(dt,v);bk.append(top,nm,cd,ds);if(ph.key==="credits")bk.append(codeRow());bk.append(ft);fl.append(bk);
       b.setAttribute("aria-label",`${ph.cap}. Нажмите, чтобы перевернуть: ачивка «${ph.name}»`);
-      b.addEventListener("click",()=>b.classList.toggle("flip"))}
+      if(PHONE){b.classList.add("split");b.addEventListener("click",ev=>{if(!ev.target.closest(".back"))openLb(i)})}
+      else b.addEventListener("click",()=>b.classList.toggle("flip"))}
     else b.addEventListener("click",()=>openLb(i))}
   const c=document.createElement("span");c.className="crn";fr.append(c);b.append(fl,cap);ph.el=b;return b}
 function renderAlbum(){
   const S=albSpreads(),pages=S.length;albPage=Math.min(albPage,pages-1);const sp=S[albPage];
   $("pageL").textContent=$("pageR").textContent="";const old=$("album").querySelector(".aph.wide");if(old)old.remove();
-  if(sp.length===1&&ART[sp[0]].wide)$("album").append(albPhoto(sp[0],"aph wide",-0.8));
+  if(sp.length===1&&ART[sp[0]].wide&&!PHONE)$("album").append(albPhoto(sp[0],"aph wide",-0.8));
   else sp.forEach((i,k)=>{(k<2?$("pageL"):$("pageR")).append(albPhoto(i,"aph",ART_R[k%4]))});
   $("albNum").textContent=pages>1?`${albPage+1} / ${pages}`:"";$("albumNav").style.visibility=pages>1?"visible":"hidden";
   $("albPrev").disabled=albPage===0;$("albNext").disabled=albPage>=pages-1}
@@ -992,6 +1141,7 @@ function showNote(n){$("evTag").textContent=n.tag||"";$("evTitle").textContent=n
 function closeNote(){$("evNote").classList.remove("on");$("evNote").setAttribute("aria-hidden","true");renderAlbum();const w=document.querySelector(".aph.wide");if(w)w.classList.add("flip")}
 $("evClose").addEventListener("click",closeNote);
 $("evNote").addEventListener("click",ev=>{if(ev.target.id==="evNote")closeNote()});
+function onLayoutChange(){if(body.dataset.screen==="play"&&cur>=0)render()}
 /* ---------- map of Riverside ---------- */
 // data/map.json: pins sit at fractions of the map image; text paragraphs open like the character notes
 let PLACES=[],LEGEND={},pinned=null,popHideT;
@@ -1000,28 +1150,37 @@ $("btnMap").addEventListener("click",openMap);
 $("mapBack").addEventListener("click",showSeason);
 function mapV(){return save.map==="scheme"?"scheme":"real"}
 function openMap(){hidePop(true);buildMap();go("map")}
+// phones: maps turned 90° clockwise (ocean on top): (x,y) → (1-y, x)
+const MP=p=>PHONE?[1-p[1],p[0]]:p;
+const MAP_KEY={real:[.29,.33],scheme:[.42,.27]};// the printed map key, hidden on phones
+function sizeMap(){const v=mapV(),box=$("mapBox"),ph=parseFloat(getComputedStyle(body).getPropertyValue("--ph"))||2200;
+  const mh=1080*(v==="real"?1440/1080:2400/1440),lh=$("mapLegend").offsetHeight||700,av=ph-lh;
+  box.style.setProperty("--mh",mh+"px");box.style.setProperty("--mt","0px");
+  const k=box.querySelector(".mapKey"),K=MAP_KEY[v];if(k){k.style.width=K[0]*100+"%";k.style.height=K[1]*100+"%"}}
 function buildMap(){
-  const v=mapV(),box=$("mapBox");box.dataset.v=v;$("mapImg").src=v==="real"?"img/map_real.webp":"img/map_scheme.webp";
+  const v=mapV(),box=$("mapBox");box.dataset.v=v;$("mapImg").src=(v==="real"?"img/map_real":"img/map_scheme")+(PHONE?"_v":"")+".webp";
+  if(PHONE&&!box.querySelector(".mapKey")){const k=document.createElement("div");k.className="mapKey";box.insertBefore(k,$("mapPins"))}
   $("mapSwitch").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));
   const L=LEGEND[v];if(L){const g=$("mapLegend").style;g.left=L[0]*100+"%";g.top=L[1]*100+"%";g.width=(L[2]-L[0])*100+"%";g.height=(L[3]-L[1])*100+"%"}
   const P=$("mapPins"),list=$("mapList");P.textContent=list.textContent="";
   PLACES.forEach(pl=>{const lock=pl.after!=null&&!opened(pl.after);
     const b=document.createElement("button");b.type="button";b.className="pin"+(pl.label?" label":"")+(pl.road?" road":"")+(pl.crash?" crash":"")+(lock?" locked":"");
-    if(pl.road)b.innerHTML=ROUTE_SVG;b.style.left=pl[v][0]*100+"%";b.style.top=pl[v][1]*100+"%";b.setAttribute("aria-label",lock?"Закрытая метка":pl.name);
+    if(pl.road)b.innerHTML=ROUTE_SVG;const q=MP(pl[v]);b.style.left=q[0]*100+"%";b.style.top=q[1]*100+"%";b.setAttribute("aria-label",lock?"Закрытая метка":pl.name);
     b.addEventListener("pointerenter",ev=>{if(ev.pointerType==="mouse"&&!pinned)showPop(pl,b)});
     b.addEventListener("pointerleave",ev=>{if(ev.pointerType==="mouse"&&!pinned)hidePop()});
     b.addEventListener("click",ev=>{ev.stopPropagation();if(pinned===pl){hidePop(true);return}pinned=pl;showPop(pl,b)});
     pl.pin=b;P.append(b);
     const li=document.createElement("button");li.type="button";if(lock)li.className="locked";
     const m=document.createElement("b");m.textContent=pl.road?"11":pl.crash?"†":pl.label?"✕":pl.mark;li.append(m,document.createTextNode(lock?"???":pl.short||pl.name));
-    li.addEventListener("click",ev=>{ev.stopPropagation();pinned=pl;showPop(pl,b)});list.append(li)})}
+    li.addEventListener("click",ev=>{ev.stopPropagation();pinned=pl;showPop(pl,b)});list.append(li)});
+  if(PHONE)requestAnimationFrame(sizeMap)}
 $("mapSwitch").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;ev.stopPropagation();save.map=b.dataset.v;persist();hidePop(true);buildMap()});
 $("mapScr").addEventListener("click",ev=>{if(!ev.target.closest("#pop"))hidePop(true)});
 $("pop").addEventListener("pointerenter",()=>clearTimeout(popHideT));
 $("pop").addEventListener("pointerleave",ev=>{if(ev.pointerType==="mouse"&&!pinned)hidePop()});
 function showPop(pl,pin){clearTimeout(popHideT);
   {const src=typeof pl.path==="string"?PLACES.find(p=>p.id===pl.path):pl,path=src&&src.path&&src.path[mapV()],r=$("mapRoute");
-   if(path&&!(pl.after!=null&&!opened(pl.after))){const pts=path.map(p=>p.join(",")).join(" ");r.querySelectorAll("polyline").forEach(l=>l.setAttribute("points",pts));r.classList.add("on")}else r.classList.remove("on")}
+   if(path&&!(pl.after!=null&&!opened(pl.after))){const pts=path.map(p=>MP(p).join(",")).join(" ");r.querySelectorAll("polyline").forEach(l=>l.setAttribute("points",pts));r.classList.add("on")}else r.classList.remove("on")}
   PLACES.forEach(p=>p.pin&&p.pin.classList.toggle("on",p===pl));
   const pop=$("pop"),lock=pl.after!=null&&!opened(pl.after),im=$("popImg"),T=$("popTxt");
   pop.classList.toggle("lockedPop",lock);pop.classList.toggle("compact",!!pl.path);T.textContent="";
@@ -1034,11 +1193,12 @@ function showPop(pl,pin){clearTimeout(popHideT);
   const box=$("mapBox"),bw=box.offsetWidth,bh=box.offsetHeight,x=pin.offsetLeft+pin.offsetWidth/2,y=pin.offsetTop+pin.offsetHeight/2;
   pop.classList.add("on");const w=pop.offsetWidth,h=pop.offsetHeight;
   let left,top;
-  const vert=pl.path&&(y-50-h>=10||y+50+h<=bh-10);
-  if(vert){// keep the highlighted road visible: open above (or below) the pin
+  const vert=!PHONE&&pl.path&&(y-50-h>=10||y+50+h<=bh-10);
+  if(PHONE){left=bw-w;top=bh-h}
+  else if(vert){// keep the highlighted road visible: open above (or below) the pin
     left=Math.min(Math.max(10,x-w/2),bw-w-10);top=y-50-h>=10?y-50-h:y+50}
   else{const src=typeof pl.path==="string"?PLACES.find(p=>p.id===pl.path):pl,path=src&&src.path&&src.path[mapV()];
-    const pathLeft=path&&path.reduce((t,p)=>t+p[0],0)/path.length*bw<x;// open on the side away from the road
+    const pathLeft=path&&path.reduce((t,p)=>t+MP(p)[0],0)/path.length*bw<x;// open on the side away from the road
     left=x+50;if(left+w>bw-10||(path&&!pathLeft))left=x-50-w;if(left<10)left=x+50;left=Math.min(Math.max(10,left),bw-w-10);
     top=Math.min(Math.max(10,y-h/2),bh-h-10)}
   pop.style.left=left+"px";pop.style.top=top+"px"}
@@ -1062,7 +1222,7 @@ SEASONS.forEach((s,i)=>{const b=document.createElement("button");b.type="button"
 
 /* ---------- cassette menu ---------- */
 const stateOf=i=>i<save.done?"done":i===save.done?"open":"locked";
-const rows=$("rows");
+const rows=$("rows");let picked=-1; // phone: first tap shows the cover, second tap plays
 EPISODES.forEach((e,i)=>{
   const b=document.createElement("button");b.type="button";
   const top=(e.row===0?56:(ROW_Y[e.row-1]+ROW_Y[e.row])/2)-56;
@@ -1070,7 +1230,7 @@ EPISODES.forEach((e,i)=>{
   b.style.top=top+"px";b.style.height=(bot-top)+"px";
   b.addEventListener("mouseenter",()=>hover(i));b.addEventListener("focus",()=>hover(i));
   b.addEventListener("mouseleave",()=>{if(document.activeElement!==b)hover(-1)});b.addEventListener("blur",()=>hover(-1));
-  b.addEventListener("click",()=>choose(i));rows.appendChild(b)});
+  b.addEventListener("click",()=>{if(PHONE&&picked!==i){picked=i;hover(i);if(stateOf(i)==="locked"){note(lockMsg(i))}return}choose(i)});rows.appendChild(b)});
 function refreshRows(){[...rows.children].forEach((b,i)=>{const s=stateOf(i);b.dataset.state=s;
   b.setAttribute("aria-label",`${EPISODES[i].title}: ${s==="locked"?"закрыто":s==="done"?"прослушано":"доступно"}`)})}
 function setStack(animate){const n=save.done;const src=n?`img/stack_${EPISODES[n-1].strike}.webp`:"img/stack_0.webp";
@@ -1083,8 +1243,8 @@ function panelShow(src){const p=$("panelImg"),l=$("panelLogo");
   if(!src){p.classList.add("hide");l.classList.remove("hide");return}
   p.src=src;p.classList.remove("hide");l.classList.add("hide")}
 function hover(i){if(busy||body.dataset.screen!=="menu")return;const m=$("mark");
-  if(i<0){m.style.opacity=0;panelShow(null);return}
-  const e=EPISODES[i];m.style.top=(ROW_Y[e.row]-41)+"px";m.style.opacity=(e.bonus&&stateOf(i)==="locked")?.45:1;
+  if(i<0){if(PHONE&&picked>=0)return;m.style.opacity=0;panelShow(null);return}
+  const e=EPISODES[i];m.style.top=(PHONE?965+(ROW_Y[e.row]-41-56)*1.06:ROW_Y[e.row]-41)+"px";m.style.opacity=(e.bonus&&stateOf(i)==="locked")?.45:1;
   panelShow(stateOf(i)==="locked"?`img/lock_${e.cover}.webp`:`img/cover_${e.cover}.webp`)}
 let noteT;
 const MAIN=EPISODES.filter(e=>!e.bonus).length;
@@ -1147,8 +1307,8 @@ function render(){const e=EPISODES[cur],t=mTime(),d=mDur();
       if(q.en){const a=document.createElement("div");a.className="en";a.textContent=q.en;s.append(a)}
       const b=document.createElement("div");b.className="ru";b.textContent=q.text;b.style.color=SPEAKERS[q.speaker]||SPEAKERS.narrator;s.append(b);s.classList.add("on")}}
   const f=d?t/d:0;if(!seeking&&d)$("seek").value=Math.round(f*1000);
-  const W=1690,PAD=7,inner=W-2*PAD;$("tl-played").style.width=(inner*f)+"px";
-  $("car").style.left=Math.max(150,Math.min(W-150,PAD+inner*f))+"px";
+  const W=$("timeline").offsetWidth||1690,PAD=7,inner=W-2*PAD,half=($("car").offsetWidth||312)/2;$("tl-played").style.width=(inner*f)+"px";
+  $("car").style.left=Math.max(half,Math.min(W-half,PAD+inner*f))+"px";
   $("seek").setAttribute("aria-valuetext",`${fmt(t)} из ${fmt(d)}`);
   $("time").textContent=`${fmt(t)} / ${fmt(d)}`;
   if(performance.now()-lastSave>3000){lastSave=performance.now();save.pos[cur]=t;persist()}}

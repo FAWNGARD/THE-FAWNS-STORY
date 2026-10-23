@@ -4,8 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 // 1) landscape only; permission for the lock-screen player service
 const mf = "android/app/src/main/AndroidManifest.xml";
 let m = readFileSync(mf, "utf8");
-if (!m.includes("screenOrientation"))
-  m = m.replace(/<activity\b/, '<activity android:screenOrientation="sensorLandscape"');
+// orientation is chosen at runtime by the page (phones: portrait, videos and tablets: landscape)
 // Android 14+: a mediaPlayback foreground service (lock-screen player) needs its own permission
 if (!m.includes("FOREGROUND_SERVICE_MEDIA_PLAYBACK"))
   m = m.replace(/<application\b/, '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />\n    <application');
@@ -50,7 +49,7 @@ import android.view.WindowManager;`);
 }`);
   fs.writeFileSync(f, src);
 }
-// 4) tiny native plugin: landscape in menus, free rotation (following the phone's auto-rotate) in the players
+// 4) tiny native plugin: the page asks for portrait (phone layout) or landscape (videos, tablets)
 for (const f of find(javaRoot)) {
   const dir = path.dirname(f);
   const pkg = fs.readFileSync(f, "utf8").match(/^package\s+([\w.]+);/m)[1];
@@ -66,9 +65,10 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 public class FawnOrientPlugin extends Plugin {
     @PluginMethod
     public void set(PluginCall call) {
-        final int o = "free".equals(call.getString("mode", "landscape"))
-            ? ActivityInfo.SCREEN_ORIENTATION_FULL_USER
-            : ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
+        final String m = call.getString("mode", "landscape");
+        final int o = "portrait".equals(m) ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            : "free".equals(m) ? ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+            : ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
         getActivity().runOnUiThread(() -> { getActivity().setRequestedOrientation(o); call.resolve(); });
     }
 }
