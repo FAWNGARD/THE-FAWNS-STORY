@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -125,11 +127,30 @@ jobs:
           name: log-android
           path: build.log
 
+  # Website: web/ as is (light videos), published with GitHub Pages
+  site:
+    name: Website (GitHub Pages)
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
   # Build logs go to the `ci-logs` branch so they can be read without opening GitHub.
   logs:
     name: Store logs
     if: always()
-    needs: [windows, android]
+    needs: [windows, android, site]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -146,7 +167,7 @@ jobs:
           git config user.email "build-bot@users.noreply.github.com"
           git checkout -q -b ci-logs
           cp -r ../logs/* . 2>/dev/null || true
-          printf "run: %s\nref: %s\nsha: %s\nwindows: %s\nandroid: %s\n" "$GITHUB_RUN_NUMBER" "$GITHUB_REF_NAME" "$GITHUB_SHA" "${{ needs.windows.result }}" "${{ needs.android.result }}" > STATUS.txt
+          printf "run: %s\nref: %s\nsha: %s\nwindows: %s\nandroid: %s\nsite: %s\n" "$GITHUB_RUN_NUMBER" "$GITHUB_REF_NAME" "$GITHUB_SHA" "${{ needs.windows.result }}" "${{ needs.android.result }}" "${{ needs.site.result }}" > STATUS.txt
           for f in $(find . -name build.log); do tail -c 400000 "$f" > "$f.tmp" && mv "$f.tmp" "$f"; done
           git add -A && git commit -q -m "logs for run $GITHUB_RUN_NUMBER ($GITHUB_REF_NAME)"
           git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs
