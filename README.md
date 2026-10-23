@@ -4,7 +4,7 @@ Interactive audio series app. One codebase, three outputs:
 
 | Output | Built from | Where it appears |
 |---|---|---|
-| Website | `web/` as is | GitHub Pages: https://fawngard.github.io/the-fawns-story/ |
+| Website | `web/` as is | GitHub Pages: https://fawngard.github.io/THE-FAWNS-STORY/ |
 | Windows installer (`.exe`) | Tauri (`src-tauri/`) | Actions → artifacts / Releases |
 | Android (`.apk`) | Capacitor (`capacitor.config.json`) | Actions → artifacts / Releases |
 
