@@ -1,11 +1,14 @@
 // Small edits to the generated Android project (it is recreated on every CI run).
 import { readFileSync, writeFileSync } from "node:fs";
 
-// 1) landscape only, full screen, keep the screen on while listening
+// 1) landscape only; permission for the lock-screen player service
 const mf = "android/app/src/main/AndroidManifest.xml";
 let m = readFileSync(mf, "utf8");
 if (!m.includes("screenOrientation"))
   m = m.replace(/<activity\b/, '<activity android:screenOrientation="sensorLandscape"');
+// Android 14+: a mediaPlayback foreground service (lock-screen player) needs its own permission
+if (!m.includes("FOREGROUND_SERVICE_MEDIA_PLAYBACK"))
+  m = m.replace(/<application\b/, '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />\n    <application');
 writeFileSync(mf, m);
 
 // 2) versionCode from CI (-PversionCode), versionName from package.json
@@ -38,7 +41,6 @@ import android.view.WindowManager;`);
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

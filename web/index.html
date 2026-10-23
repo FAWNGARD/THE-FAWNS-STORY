@@ -672,6 +672,29 @@ const $=id=>document.getElementById(id);
 let MEDIA=p=>p;
 if(window.__TAURI__&&window.__TAURI__.path)window.__TAURI__.path.resourceDir().then(d=>{const base=d.replace(/[\\/]+$/,"");
   MEDIA=p=>/^(audio|video)\//.test(p)?window.__TAURI__.core.convertFileSrc(base+"/"+p):p;const m=$("music");const was=!m.paused;m.src=MEDIA("audio/ost.mp3");if(was)m.play().catch(()=>{})}).catch(()=>{});
+/* Android app: the WebView ignores the Media Session API, so it is mirrored to a native plugin
+   (lock-screen / notification player with cover, play-pause, seek, prev/next). */
+(()=>{const C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.MediaSession;if(!P)return;
+  const handlers={},artCache={};let lastArt="";
+  const toData=src=>artCache[src]||(artCache[src]=fetch(src).then(r=>r.blob()).then(b=>createImageBitmap(b)).then(bm=>{
+    const c=document.createElement("canvas"),k=Math.min(1,512/Math.max(bm.width,bm.height));c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);
+    c.getContext("2d").drawImage(bm,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.88)}).catch(()=>""));
+  window.MediaMetadata=class{constructor(o){Object.assign(this,o||{})}};
+  const ms={get metadata(){return null},
+    set metadata(m){if(!m)return;const src=(m.artwork&&m.artwork[0]&&m.artwork[0].src)||"";lastArt=src;
+      toData(src).then(d=>{if(src!==lastArt)return;P.setMetadata({title:m.title||"",artist:m.artist||"",album:m.album||"",artwork:d?[{src:d,type:"image/jpeg",sizes:"512x512"}]:[]}).catch(()=>{})})},
+    set playbackState(v){P.setPlaybackState({playbackState:v}).catch(()=>{})},
+    setPositionState(o){if(o&&isFinite(o.duration)&&o.duration>0)P.setPositionState({duration:o.duration,position:Math.max(0,Math.min(o.position||0,o.duration)),playbackRate:o.playbackRate||1}).catch(()=>{})},
+    setActionHandler(a,f){const first=!(a in handlers);handlers[a]=f;if(first)P.setActionHandler({action:a},d=>{const h=handlers[a];if(h)try{h(d||{})}catch(e){}}).catch(()=>{})}};
+  try{Object.defineProperty(navigator,"mediaSession",{value:ms,configurable:true})}catch(e){}
+  // playback state + position follow whichever player is active
+  const sync=()=>{let el=null,pos=0,dur=0;
+    if(typeof cur!=="undefined"&&cur>=0){el=media;pos=mTime();dur=mDur()}else if(typeof fcCur!=="undefined"&&fcCur>=0&&body.dataset.screen==="fcplay"){el=fcA;pos=fcA.currentTime;dur=fcA.duration}
+    if(!el){ms.playbackState="none";return}ms.playbackState=el.paused?"paused":"playing";ms.setPositionState({position:pos,duration:dur,playbackRate:1})};
+  let t=0;const later=()=>{clearTimeout(t);t=setTimeout(sync,120)};
+  addEventListener("DOMContentLoaded",()=>{[$("audio"),$("vid"),fcA].forEach(el=>["play","pause","ended","seeked","loadedmetadata"].forEach(ev=>el.addEventListener(ev,later)))});
+  setInterval(()=>{if(!document.hidden)return;sync()},5000); // keep the lock-screen bar honest while the screen is off
+  window.__msSync=later})();
 // desktop build: F11 toggles fullscreen
 addEventListener("keydown",async ev=>{const T=window.__TAURI__;if(ev.key!=="F11"||!T||!T.window)return;ev.preventDefault();
   try{const w=T.window.getCurrentWindow();await w.setFullscreen(!(await w.isFullscreen()))}catch(e){}});

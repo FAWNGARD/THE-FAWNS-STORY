@@ -2,7 +2,7 @@
   "name": "the-fawns-story",
   "private": true,
   "version": "1.0.0",
-  "description": "The Fawn's Story — Season 1: Bloody Tour (desktop & Android builds)",
+  "description": "The Fawn's Story \u2014 Season 1: Bloody Tour (desktop & Android builds)",
   "scripts": {
     "dist:desktop": "node scripts/dist.mjs desktop",
     "dist:android": "node scripts/dist.mjs android",
@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
-    "@capacitor/core": "^7.0.0"
+    "@capacitor/core": "^7.0.0",
+    "@jofr/capacitor-media-session": "^4.0.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
