@@ -106,7 +106,7 @@ body[data-screen="splash"] #rai,body[data-screen="splash"] #home,body[data-scree
 /* ---------- seasons ---------- */
 #seasons{background:var(--night)}
 #scene{position:absolute;left:0;top:0;width:1920px;height:1200px;transform-origin:0 0;transition:transform 2.6s cubic-bezier(.65,0,.25,1)}
-body[data-screen="splash"] #scene{transform:translate(-130.4px,85.2px) scale(1.136)}
+body[data-screen="splash"] #scene{transform:translate(-130.4px,85.2px) scale(1.136);transition:none}
 #scene .bg{left:0;top:0;width:1920px;height:1200px}
 #deer{left:643px;top:140px;width:635px;height:552px;animation:breathe 6s ease-in-out infinite, glitch 9s steps(1) infinite}
 @keyframes breathe{50%{filter:brightness(1.2)}}
@@ -153,6 +153,7 @@ body:not([data-screen="seasons"]) .season{pointer-events:none}
 body:not([data-screen="menu"]) #reset,body:not([data-screen="menu"]) #rows,body:not([data-screen="menu"]) #menuBack{display:none}
 body:not([data-screen="menu"]) #stack,body:not([data-screen="menu"]) #mark{transform:translateX(-900px);opacity:0}
 body:not([data-screen="menu"]) #panel{opacity:0;transition:opacity .25s}
+body:not([data-screen="menu"]) #mark{visibility:hidden}
 body:not([data-screen="menu"]) #note{opacity:0}
 
 /* ---------- player ---------- */
@@ -635,8 +636,8 @@ body.portrait.idle #fcTitle,body.portrait.idle #fcBar,body.portrait.idle #fcBack
 /* episode player */
 body.portrait #ptitle{left:150px;right:150px;top:30px;font-size:44px}
 body.portrait[data-screen="play"] #coverBox{left:80px;top:300px;width:920px;height:921px}
-body.portrait #tape{left:310px;top:1068px;width:460px;height:819px;transform:translateY(900px) rotate(-90deg)}
-body.portrait[data-screen="play"][data-phase="tape"] #tape{transform:rotate(-91deg)}
+body.portrait #tape{left:310px;top:1068px;width:460px;height:819px;transform:translateY(900px) rotate(90deg)}
+body.portrait[data-screen="play"][data-phase="tape"] #tape{transform:rotate(89deg)}
 body.portrait #epi{left:68px;top:1262px;width:944px;height:414px}
 body.portrait #subs{left:40px;width:1000px;top:1255px;height:440px;font-size:52px;line-height:1.22}
 body.portrait #timeline{left:24px;top:1735px;width:1032px;height:60px}
@@ -654,8 +655,8 @@ body.portrait #achSong,body.portrait #achCond{font-size:40px}
 body.portrait #achList{font-size:40px}
 body.portrait #achList button b{font-size:36px}
 body.portrait #achBtns button{font-size:50px;padding:20px 34px}
-body.portrait #evPaper{width:1000px;padding:80px 60px 60px;font-size:44px}
-body.portrait #evScroll{max-height:calc(var(--ph) - 420px)}
+body.portrait #evPaper{width:1000px;max-height:calc(var(--ph) - 320px);padding:80px 60px 60px;font-size:44px}
+body.portrait #evScroll{max-height:calc(var(--ph) - 480px)}
 body.portrait #evTag{right:30px;top:-60px;font-size:34px;max-width:420px}
 body.portrait #evClose{right:30px;top:24px;font-size:80px}
 </style>
@@ -1239,12 +1240,13 @@ function setStack(animate){const n=save.done;const src=n?`img/stack_${EPISODES[n
     img.src=src;requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.transition="";old.style.opacity=0}))}
   else{img.src=src;old.hidden=true}}
 let busy=false;
+const markTop=row=>PHONE?965+(ROW_Y[row]-41-56)*1.06:ROW_Y[row]-41;
 function panelShow(src){const p=$("panelImg"),l=$("panelLogo");
   if(!src){p.classList.add("hide");l.classList.remove("hide");return}
   p.src=src;p.classList.remove("hide");l.classList.add("hide")}
 function hover(i){if(busy||body.dataset.screen!=="menu")return;const m=$("mark");
   if(i<0){if(PHONE&&picked>=0)return;m.style.opacity=0;panelShow(null);return}
-  const e=EPISODES[i];m.style.top=(PHONE?965+(ROW_Y[e.row]-41-56)*1.06:ROW_Y[e.row]-41)+"px";m.style.opacity=(e.bonus&&stateOf(i)==="locked")?.45:1;
+  const e=EPISODES[i];m.style.top=markTop(e.row)+"px";m.style.opacity=(e.bonus&&stateOf(i)==="locked")?.45:1;
   panelShow(stateOf(i)==="locked"?`img/lock_${e.cover}.webp`:`img/cover_${e.cover}.webp`)}
 let noteT;
 const MAIN=EPISODES.filter(e=>!e.bonus).length;
@@ -1307,8 +1309,8 @@ function render(){const e=EPISODES[cur],t=mTime(),d=mDur();
       if(q.en){const a=document.createElement("div");a.className="en";a.textContent=q.en;s.append(a)}
       const b=document.createElement("div");b.className="ru";b.textContent=q.text;b.style.color=SPEAKERS[q.speaker]||SPEAKERS.narrator;s.append(b);s.classList.add("on")}}
   const f=d?t/d:0;if(!seeking&&d)$("seek").value=Math.round(f*1000);
-  const W=$("timeline").offsetWidth||1690,PAD=7,inner=W-2*PAD,half=($("car").offsetWidth||312)/2;$("tl-played").style.width=(inner*f)+"px";
-  $("car").style.left=Math.max(half,Math.min(W-half,PAD+inner*f))+"px";
+  const W=$("timeline").offsetWidth||1690,PAD=7,inner=W-2*PAD,half=body.classList.contains("portrait")?125:156;$("tl-played").style.width=(inner*f)+"px";
+  $("car").style.left=(half+(W-2*half)*f)+"px";
   $("seek").setAttribute("aria-valuetext",`${fmt(t)} из ${fmt(d)}`);
   $("time").textContent=`${fmt(t)} / ${fmt(d)}`;
   if(performance.now()-lastSave>3000){lastSave=performance.now();save.pos[cur]=t;persist()}}
@@ -1337,7 +1339,7 @@ function afterLeave(i,finished,to,unlocked){
   else{if(to==="seasons")fadeGo(to);else go(to);achShowSoon(700)}}
 function celebrate(next){busy=true;const e=EPISODES[next],m=$("mark");
   setTimeout(()=>setStack(true),700);
-  setTimeout(()=>{m.style.top=(ROW_Y[e.row]-41)+"px";m.style.opacity=1;panelShow(`img/lock_${e.cover}.webp`)},2000);
+  setTimeout(()=>{m.style.top=markTop(e.row)+"px";m.style.opacity=1;panelShow(`img/lock_${e.cover}.webp`)},2000);
   setTimeout(()=>{panelShow(`img/unlock_${e.cover}.webp`);const p=$("panel");p.classList.remove("shake");void p.offsetWidth;p.classList.add("shake")},3200);
   setTimeout(()=>{panelShow(`img/cover_${e.cover}.webp`);note(`Открыта новая кассета: «${e.title}»`,3500);busy=false},4300)}
 
