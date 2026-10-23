@@ -285,14 +285,12 @@ body[data-screen="map"] #mapScr{opacity:1;pointer-events:auto}
 .pin.locked::before{animation:none;opacity:1;inset:3px;background:#0b0a09;box-shadow:0 0 0 3px #3a3734}
 .pin.locked::after{content:"?";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:34px/1 var(--brush);color:#77736d}
 #mapLegend{position:absolute;z-index:3;background:#0e0d0c;box-shadow:0 0 0 2px #2b2926,0 10px 30px rgba(0,0,0,.6);box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column}
-#mapBox[data-v="real"] #mapLegend{padding:14px 18px}
 #mapLegend h3{margin:0;font:400 40px/1 var(--brush);color:var(--paper);display:flex;justify-content:space-between;align-items:center;gap:10px}
 #mapSwitch{display:flex;gap:4px}
 #mapSwitch button{font:26px/1 var(--brush);color:var(--paper-dim);background:#1f1d1b;border:0;padding:8px 12px;cursor:pointer}
 #mapSwitch button[aria-pressed="true"]{color:#0b0a09;background:var(--paper)}
 #mapList{margin-top:12px;columns:2;column-gap:18px;flex:1;overflow:hidden}
 #mapList button{display:block;width:100%;text-align:left;font:28px/1.25 var(--brush);color:rgba(239,233,221,.75);background:none;border:0;padding:2px 0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;break-inside:avoid}
-#mapBox[data-v="real"] #mapList button{font-size:24px}
 #mapList button b{display:inline-block;min-width:38px;color:#ff5a5a;font-weight:400}
 #mapList button:hover,#mapList button:focus-visible{color:#fff;outline:none}
 #mapList button.locked{color:#55524d}
