@@ -1,0 +1,168 @@
+name: Build apps
+
+# Runs on every push to main (artifacts only) and on version tags v* (also publishes a Release).
+# Can be started by hand: Actions → Build apps → Run workflow.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows (.exe)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Install
+        run: npm install --no-audit --no-fund 2>&1 | tee -a build.log
+      - name: Prepare files
+        run: npm run dist:desktop 2>&1 | tee -a build.log
+      - name: Icons
+        run: npx tauri icon assets/icon.png 2>&1 | tee -a build.log
+      - name: Build installer
+        run: |
+          set -o pipefail
+          npx tauri build 2>&1 | tee -a build.log
+      - name: Collect
+        run: |
+          mkdir -p out
+          cp src-tauri/target/release/bundle/nsis/*.exe "out/TheFawnsStory-Setup-${GITHUB_REF_NAME//\//-}.exe"
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*.exe
+          compression-level: 0
+      - name: Save log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-windows
+          path: build.log
+
+  android:
+    name: Android (.apk)
+    runs-on: ubuntu-latest
+    env:
+      KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install
+        run: npm install --no-audit --no-fund 2>&1 | tee -a build.log
+      - name: Prepare files
+        run: npm run dist:android 2>&1 | tee -a build.log
+      - name: Android project
+        run: |
+          set -o pipefail
+          npx cap add android 2>&1 | tee -a build.log
+          npx capacitor-assets generate --android --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#000000' --splashBackgroundColorDark '#000000' 2>&1 | tee -a build.log
+          node scripts/android-tweaks.mjs 2>&1 | tee -a build.log
+          npx cap sync android 2>&1 | tee -a build.log
+      - name: Build APK
+        run: |
+          set -o pipefail
+          cd android
+          VC=$(( 100 + ${GITHUB_RUN_NUMBER} ))
+          if [ -n "$KS_B64" ]; then
+            ./gradlew assembleRelease -PversionCode=$VC --no-daemon 2>&1 | tee -a ../build.log
+          else
+            echo "No signing secrets: building a debug APK" | tee -a ../build.log
+            ./gradlew assembleDebug -PversionCode=$VC --no-daemon 2>&1 | tee -a ../build.log
+          fi
+      - name: Sign
+        run: |
+          set -e
+          mkdir -p out
+          NAME="TheFawnsStory-${GITHUB_REF_NAME//\//-}.apk"
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > release.jks
+            $BT/zipalign -p -f 4 android/app/build/outputs/apk/release/app-release-unsigned.apk aligned.apk
+            $BT/apksigner sign --ks release.jks --ks-pass env:KS_PASS --ks-key-alias "$KEY_ALIAS" --key-pass env:KEY_PASS --out "out/$NAME" aligned.apk
+            $BT/apksigner verify "out/$NAME"
+            rm -f release.jks
+          else
+            cp android/app/build/outputs/apk/debug/app-debug.apk "out/${NAME%.apk}-debug.apk"
+          fi
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: out/*.apk
+          compression-level: 0
+      - name: Save log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-android
+          path: build.log
+
+  # Build logs go to the `ci-logs` branch so they can be read without opening GitHub.
+  logs:
+    name: Store logs
+    if: always()
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: log-*
+          path: logs
+      - name: Push to ci-logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p repo && cd repo
+          git init -q
+          git config user.name "build-bot"
+          git config user.email "build-bot@users.noreply.github.com"
+          git checkout -q -b ci-logs
+          cp -r ../logs/* . 2>/dev/null || true
+          printf "run: %s\nref: %s\nsha: %s\nwindows: %s\nandroid: %s\n" "$GITHUB_RUN_NUMBER" "$GITHUB_REF_NAME" "$GITHUB_SHA" "${{ needs.windows.result }}" "${{ needs.android.result }}" > STATUS.txt
+          for f in $(find . -name build.log); do tail -c 400000 "$f" > "$f.tmp" && mv "$f.tmp" "$f"; done
+          git add -A && git commit -q -m "logs for run $GITHUB_RUN_NUMBER ($GITHUB_REF_NAME)"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: The Fawn's Story ${{ github.ref_name }}
+          files: |
+            dl/windows/*.exe
+            dl/android/*.apk
