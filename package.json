@@ -11,8 +11,7 @@
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
-    "@jofr/capacitor-media-session": "^4.0.0",
-    "@capacitor/screen-orientation": "^7.0.0"
+    "@jofr/capacitor-media-session": "^4.0.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

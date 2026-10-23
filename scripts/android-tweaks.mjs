@@ -50,4 +50,41 @@ import android.view.WindowManager;`);
 }`);
   fs.writeFileSync(f, src);
 }
+// 4) tiny native plugin: landscape in menus, free rotation (following the phone's auto-rotate) in the players
+for (const f of find(javaRoot)) {
+  const dir = path.dirname(f);
+  const pkg = fs.readFileSync(f, "utf8").match(/^package\s+([\w.]+);/m)[1];
+  fs.writeFileSync(path.join(dir, "FawnOrientPlugin.java"), `package ${pkg};
+
+import android.content.pm.ActivityInfo;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+@CapacitorPlugin(name = "FawnOrient")
+public class FawnOrientPlugin extends Plugin {
+    @PluginMethod
+    public void set(PluginCall call) {
+        final int o = "free".equals(call.getString("mode", "landscape"))
+            ? ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+            : ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
+        getActivity().runOnUiThread(() -> { getActivity().setRequestedOrientation(o); call.resolve(); });
+    }
+}
+`);
+  let src = fs.readFileSync(f, "utf8");
+  if (!src.includes("FawnOrientPlugin.class")) {
+    src = src.replace("import com.getcapacitor.BridgeActivity;", "import com.getcapacitor.BridgeActivity;\nimport android.os.Bundle;");
+    src = src.replace(/public class MainActivity extends BridgeActivity \{/,
+      `public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(FawnOrientPlugin.class);
+        super.onCreate(savedInstanceState);
+    }
+`);
+    fs.writeFileSync(f, src);
+  }
+}
 console.log("android tweaks applied");

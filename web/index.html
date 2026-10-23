@@ -735,8 +735,8 @@ addEventListener("keydown",async ev=>{const T=window.__TAURI__;if(ev.key!=="F11"
 document.addEventListener("click",ev=>{const a=ev.target.closest&&ev.target.closest("a[href^='http']");const T=window.__TAURI__;
   if(a&&T&&T.opener){ev.preventDefault();T.opener.openUrl(a.href).catch(()=>{})}},true);
 // Android app: menus stay landscape; the players may rotate to portrait
-function orient(screen){const C=window.Capacitor,O=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.ScreenOrientation;if(!O)return;
-  (/^(play|fcplay)$/.test(screen)?O.unlock():O.lock({orientation:"landscape"})).catch(()=>{})}
+function orient(screen){const C=window.Capacitor,O=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.FawnOrient;if(!O)return;
+  O.set({mode:/^(play|fcplay)$/.test(screen)?"free":"landscape"}).catch(()=>{})}
 const audio=$("audio"),vid=$("vid"),body=document.body;let media=audio;
 const LOCK_SVG='<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M26 54 V36 a24 24 0 0 1 48 0 V54" fill="none" stroke="rgba(239,233,221,.78)" stroke-width="13"/><rect x="8" y="50" width="84" height="66" rx="14" fill="rgba(239,233,221,.78)"/><circle cx="50" cy="76" r="9" fill="#0b0a09"/><path d="M45 80 h10 l4 22 h-18z" fill="#0b0a09"/></svg>';
 
