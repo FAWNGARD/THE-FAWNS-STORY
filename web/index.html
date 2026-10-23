@@ -487,6 +487,38 @@ body[data-screen="fcplay"].idle #fcBack{opacity:0}
 #evBody s{text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:#1f2340;opacity:.75}
 #evBody p:first-child{margin-bottom:12px}
 #evClose{position:absolute;right:40px;top:30px;font:60px/1 var(--brush);color:var(--paper);background:none;border:0;cursor:pointer;--sw:7px;z-index:2}
+
+/* ---------- portrait players (phones held upright): stage is 1080 wide and as tall as the screen;
+   the cover / title hang from the top, subtitles and controls sit on the bottom ---------- */
+body.portrait #stage{width:1080px;height:var(--ph,1920px);background-size:cover;background-position:center}
+body.portrait #rotate{display:none!important}
+body.portrait{padding-left:0;padding-right:0}
+body.portrait #fcScr{background-size:cover;background-position:center}
+body.portrait #ptitle{left:150px;right:150px;top:26px;font-size:42px}
+body.portrait #rai{bottom:24px}
+body.portrait[data-screen="play"] #coverBox{left:90px;top:180px;width:900px;height:901px}
+body.portrait #tape{left:368px;top:auto;bottom:360px;width:345px;height:614px}
+body.portrait #epi{left:153px;top:auto;bottom:520px;width:774px;height:340px}
+body.portrait #subs{left:40px;width:1000px;top:auto;bottom:300px;height:calc(var(--ph,1920px) - 1081px - 180px - 340px);min-height:420px;font-size:54px;line-height:1.22}
+body.portrait #timeline{left:80px;top:auto;bottom:170px;width:920px}
+body.portrait #time{top:auto;bottom:90px;font-size:44px}
+body.portrait #car{width:250px;height:85px;margin-left:-125px}
+body.portrait #vid{top:160px;width:1080px;height:610px}
+body.portrait[data-phase="video"] #subs,body.portrait[data-phase="video"].idle #subs{top:820px;bottom:auto;height:auto;max-height:calc(var(--ph,1920px) - 820px - 300px);justify-content:flex-start}
+body.portrait[data-phase="video"].idle #timeline,body.portrait[data-phase="video"].idle #time{opacity:1;pointer-events:auto}
+body.portrait #fcCD{left:140px;top:160px;width:800px;height:800px}
+body.portrait #fcTitle{left:150px;width:780px;top:26px}
+body.portrait #fcTitle b{font-size:46px}
+body.portrait #fcTitle span{font-size:24px}
+body.portrait #fcLyr{left:30px;width:1020px;top:990px;height:calc(var(--ph,1920px) - 990px - 330px);-webkit-mask:linear-gradient(transparent 0,#000 90px,#000 calc(100% - 140px),transparent);mask:linear-gradient(transparent 0,#000 90px,#000 calc(100% - 140px),transparent)}
+body.portrait .fl{font-size:66px;margin-bottom:30px}
+body.portrait #fcBar{left:60px;right:60px;bottom:60px;flex-wrap:wrap;justify-content:center;row-gap:34px;column-gap:44px}
+body.portrait #fcBar svg{width:76px;height:76px}
+body.portrait #fcPP svg{width:104px;height:104px}
+body.portrait #fcSeek{order:-1;flex:1 1 100%;height:12px}
+body.portrait #fcMode{font-size:32px!important;padding:14px 26px!important}
+body.portrait #fcTime{min-width:0;font-size:36px}
+body.portrait.idle #fcTitle,body.portrait.idle #fcBar{opacity:1;pointer-events:auto}
 </style>
 
 <div id="viewport">
@@ -702,6 +734,9 @@ addEventListener("keydown",async ev=>{const T=window.__TAURI__;if(ev.key!=="F11"
 // desktop build: open external links (Telegram) in the system browser
 document.addEventListener("click",ev=>{const a=ev.target.closest&&ev.target.closest("a[href^='http']");const T=window.__TAURI__;
   if(a&&T&&T.opener){ev.preventDefault();T.opener.openUrl(a.href).catch(()=>{})}},true);
+// Android app: menus stay landscape; the players may rotate to portrait
+function orient(screen){const C=window.Capacitor,O=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.ScreenOrientation;if(!O)return;
+  (/^(play|fcplay)$/.test(screen)?O.unlock():O.lock({orientation:"landscape"})).catch(()=>{})}
 const audio=$("audio"),vid=$("vid"),body=document.body;let media=audio;
 const LOCK_SVG='<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M26 54 V36 a24 24 0 0 1 48 0 V54" fill="none" stroke="rgba(239,233,221,.78)" stroke-width="13"/><rect x="8" y="50" width="84" height="66" rx="14" fill="rgba(239,233,221,.78)"/><circle cx="50" cy="76" r="9" fill="#0b0a09"/><path d="M45 80 h10 l4 22 h-18z" fill="#0b0a09"/></svg>';
 
@@ -713,14 +748,19 @@ if(!save.ach||typeof save.ach!=="object")save.ach={};
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(save))}catch(e){}};
 
 /* ---------- stage scaling ---------- */
-function fit(){const v=$("viewport"),s=Math.min(v.clientWidth/1920,v.clientHeight/1200);$("stage").style.transform=`translate(-50%,-50%) scale(${s})`}
-addEventListener("resize",fit);fit();
+function fit(){const v=$("viewport"),b=document.body;
+  const por=innerHeight>innerWidth*1.15&&/^(play|fcplay)$/.test(b.dataset.screen||"");b.classList.toggle("portrait",por);
+  const W=v.clientWidth,H=v.clientHeight;
+  const ph=por?Math.max(1920,Math.round(1080*H/W)):1200;b.style.setProperty("--ph",ph+"px");
+  const s=Math.min(W/(por?1080:1920),H/ph);$("stage").style.transform=`translate(-50%,-50%) scale(${s})`}
+addEventListener("resize",()=>{fit();if(body.dataset.screen==="fcplay")requestAnimationFrame(()=>fcRender(true))});fit();
 const pre=src=>{const i=new Image();i.src=src};
 EPISODES.forEach(e=>{pre(`img/cover_${e.cover}.webp`);pre(`img/lock_${e.cover}.webp`)});
 
 /* ---------- screens ---------- */
 function go(screen){closeTg();if(screen!=="fcplay")fcStop();if(screen!=="chars")closeChar();hidePop(true);if(screen!=="art")closeLb();if(screen!=="play"&&screen!=="splash"&&screen!=="fcplay")musicOn();body.dataset.screen=screen;if(screen!=="play")$("coverBox").hidden=true;
-  if(screen==="menu"){setStack(false);refreshRows();hover(-1)}}
+  if(screen==="menu"){setStack(false);refreshRows();hover(-1)}
+  fit();orient(screen)}
 function fadeGo(screen,after){const f=$("fader");f.classList.add("on");
   setTimeout(()=>{$("seasons").style.setProperty("--d","0s");go(screen);if(after)after();setTimeout(()=>f.classList.remove("on"),60)},430)}
 let introT;
@@ -842,7 +882,7 @@ function fcRender(force){if(fcCur<0)return;const L=FC[fcCur].lines,now=fcA.curre
   const els=$("fcCol").children;
   for(let j=0;j<els.length;j++){els[j].classList.toggle("cur",j===cur);els[j].classList.toggle("next",j===nxt)}
   const a=cur>=0?els[cur]:nxt>=0?els[nxt]:null;if(!a)return;
-  const y=520-(a.offsetTop+a.offsetHeight/2);$("fcCol").style.transform=`translateY(${y}px)`}
+  const y=(body.classList.contains("portrait")?Math.round($("fcLyr").clientHeight*.38):520)-(a.offsetTop+a.offsetHeight/2);$("fcCol").style.transform=`translateY(${y}px)`}
 /* ---------- illustrations ---------- */
 let ART=[],albPage=0,lbIdx=-1;
 fetch("data/art.json").then(r=>r.json()).then(d=>{ART=d.photos||[];renderAlbum()}).catch(()=>{});
@@ -1084,7 +1124,7 @@ function play(i){const e=EPISODES[i];cur=i;cueIdx=-1;
   $("tape").src=`img/tape_${e.tape}.webp`;$("epi").src=e.epi?`img/epi_${e.epi}.webp`:"";$("cover").src=`img/cover_${e.cover}.webp`;
   $("subs").textContent="";$("subs").classList.remove("on");
   const cb=$("coverBox");cb.hidden=false;void cb.offsetWidth;
-  body.dataset.phase="tape";closeTg();body.dataset.screen="play";$("mark").style.opacity=0;
+  body.dataset.phase="tape";closeTg();body.dataset.screen="play";fit();orient("play");$("mark").style.opacity=0;
   audio.pause();vid.pause();media=e.video?vid:audio;videoOn=false;setMeta(i);const resume=save.pos[i]||0;
   segs=Array.isArray(e.video)?e.video:null;
   if(segs){segOff=[0];segs.forEach(s=>segOff.push(segOff[segOff.length-1]+s.dur));
@@ -1130,7 +1170,7 @@ function leave(finished,to){if(cur<0)return;const i=cur;save.pos[i]=finished?0:m
   if(finished&&EPISODES[i].credits&&!leave.inCredits){leave.inCredits=true;runCredits(EPISODES[i].credits,()=>{leave.inCredits=false;afterLeave(i,true,to,unlocked)});return}
   afterLeave(i,finished,to,unlocked)}
 function afterLeave(i,finished,to,unlocked){
-  if(to==="menu"&&finished&&unlocked>=0){closeTg();musicOn();body.dataset.screen="menu";$("coverBox").hidden=true;refreshRows();setStack(false);
+  if(to==="menu"&&finished&&unlocked>=0){closeTg();musicOn();body.dataset.screen="menu";fit();orient("menu");$("coverBox").hidden=true;refreshRows();setStack(false);
     // show the old stack first, then strike the finished tape and open the next one
     if(i>0){$("stackImg").src=`img/stack_${EPISODES[i-1].strike}.webp`}else{$("stackImg").src="img/stack_0.webp"}
     panelShow(null);celebrate(unlocked);achShowSoon(4700)}
@@ -1142,7 +1182,7 @@ function celebrate(next){busy=true;const e=EPISODES[next],m=$("mark");
   setTimeout(()=>{panelShow(`img/cover_${e.cover}.webp`);note(`Открыта новая кассета: «${e.title}»`,3500);busy=false},4300)}
 
 /* ---------- credits (after the finale; skippable only with the button) ---------- */
-function runCredits(src,done){const v=$("credVid");closeTg();body.dataset.screen="credits";$("coverBox").hidden=true;
+function runCredits(src,done){const v=$("credVid");closeTg();body.dataset.screen="credits";fit();orient("credits");$("coverBox").hidden=true;
   v.src=MEDIA(src);v.volume=Math.max(0,Math.min(1,+save.vol||0));v.currentTime=0;v.play().catch(()=>{});
   const finish=watched=>{v.onended=null;$("skipCredits").onclick=null;v.pause();v.removeAttribute("src");v.load();if(watched)achEarn("credits");done()};
   v.onended=()=>finish(true);$("skipCredits").onclick=()=>finish(false);setTimeout(()=>$("skipCredits").focus({preventScroll:true}),400)}
