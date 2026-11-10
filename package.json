@@ -1,7 +1,7 @@
 {
   "name": "the-fawns-story",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The Fawn's Story \u2014 Season 1: Bloody Tour (desktop & Android builds)",
   "scripts": {
     "dist:desktop": "node scripts/dist.mjs desktop",
